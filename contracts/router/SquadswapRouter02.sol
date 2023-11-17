@@ -18,19 +18,14 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     address public immutable override factory;
     address public immutable override WETH;
 
-    uint256 public swapFee;
-    address public treasury;
-
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, 'SquadswapRouter02: EXPIRED');
         _;
     }
 
-    constructor(address _factory, address _WETH, address _treasury, uint256 _fee) public {
+    constructor(address _factory, address _WETH) public {
         factory = _factory;
         WETH = _WETH;
-        swapFee = _fee;
-        treasury = _treasury;
     }
 
     receive() external payable {
@@ -78,6 +73,8 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     ) external virtual override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
+        console.log("----------pair-----");
+        console.log(pair);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = ISquadswapPair(pair).mint(to);
@@ -118,6 +115,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountA, uint amountB) {
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
+        console.log(ISquadswapPair(pair).balanceOf(msg.sender));
         ISquadswapPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint amount0, uint amount1) = ISquadswapPair(pair).burn(to);
         (address token0,) = SquadswapLibrary.sortTokens(tokenA, tokenB);
@@ -236,14 +234,10 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address to,
         uint deadline
     ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
-        uint256 feeAmount = amountIn * swapFee / 10000;
-        amounts = SquadswapLibrary.getAmountsOut(factory, amountIn - feeAmount, path);
+        amounts = SquadswapLibrary.getAmountsOut(factory, amountIn, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
-        );
-        TransferHelper.safeTransferFrom(
-            path[0], msg.sender, treasury, feeAmount
         );
         _swap(amounts, path, to);
     }
@@ -255,16 +249,9 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint deadline
     ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
         amounts = SquadswapLibrary.getAmountsIn(factory, amountOut, path);
-        uint256 feeAmount = amounts[0] * swapFee / 10000;
-        console.log(amounts[0]);
-        console.log(feeAmount);
-        console.log(amountInMax);
-        require(amounts[0] + feeAmount <= amountInMax, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
+        require(amounts[0] <= amountInMax, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
-        );
-        TransferHelper.safeTransferFrom(
-            path[0], msg.sender, treasury, feeAmount
         );
         _swap(amounts, path, to);
     }
@@ -277,12 +264,10 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         returns (uint[] memory amounts)
     {
         require(path[0] == WETH, 'SquadswapRouter02: INVALID_PATH');
-        uint256 feeAmount = msg.value * swapFee / 10000;
-        amounts = SquadswapLibrary.getAmountsOut(factory, msg.value - feeAmount, path);
+        amounts = SquadswapLibrary.getAmountsOut(factory, msg.value, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
-        payable(treasury).call{value: feeAmount}("");
         _swap(amounts, path, to);
     }
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
@@ -294,13 +279,9 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     {
         require(path[path.length - 1] == WETH, 'SquadswapRouter02: INVALID_PATH');
         amounts = SquadswapLibrary.getAmountsIn(factory, amountOut, path);
-        uint256 feeAmount = amounts[0] * swapFee / 10000;
-        require(amounts[0] + feeAmount <= amountInMax, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
+        require(amounts[0] <= amountInMax, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
-        );
-        TransferHelper.safeTransferFrom(
-            path[0], msg.sender, treasury, feeAmount
         );
         _swap(amounts, path, address(this));
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
@@ -314,14 +295,10 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         returns (uint[] memory amounts)
     {
         require(path[path.length - 1] == WETH, 'SquadswapRouter02: INVALID_PATH');
-        uint256 feeAmount = amountIn * swapFee / 10000;
-        amounts = SquadswapLibrary.getAmountsOut(factory, amountIn - feeAmount, path);
+        amounts = SquadswapLibrary.getAmountsOut(factory, amountIn, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
-        );
-        TransferHelper.safeTransferFrom(
-            path[0], msg.sender, treasury, feeAmount
         );
         _swap(amounts, path, address(this));
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
@@ -337,14 +314,12 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     {
         require(path[0] == WETH, 'SquadswapRouter02: INVALID_PATH');
         amounts = SquadswapLibrary.getAmountsIn(factory, amountOut, path);
-        uint256 feeAmount = amounts[0] * swapFee / 10000;
-        require(amounts[0] + feeAmount <= msg.value, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
+        require(amounts[0] <= msg.value, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
-        payable(treasury).call{value: feeAmount}("");
         _swap(amounts, path, to);
         // refund dust eth, if any
-        if (msg.value > amounts[0] + feeAmount) TransferHelper.safeTransferBNB(msg.sender, msg.value - amounts[0] - feeAmount);
+        if (msg.value > amounts[0]) TransferHelper.safeTransferBNB(msg.sender, msg.value - amounts[0]);
     }
 
     // **** SWAP (supporting fee-on-transfer tokens) ****
@@ -374,12 +349,8 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address to,
         uint deadline
     ) external virtual override ensure(deadline) {
-        uint256 feeAmount = amountIn * swapFee / 10000;
         TransferHelper.safeTransferFrom(
-            path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn - feeAmount
-        );
-        TransferHelper.safeTransferFrom(
-            path[0], msg.sender, treasury, feeAmount
+            path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn
         );
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(path, to);
@@ -402,10 +373,8 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     {
         require(path[0] == WETH, 'SquadswapRouter02: INVALID_PATH');
         uint amountIn = msg.value;
-        uint256 feeAmount = amountIn * swapFee / 10000;
-        IWETH(WETH).deposit{value: amountIn - feeAmount}();
-        assert(IWETH(WETH).transfer(SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn - feeAmount));
-        payable(treasury).call{value: feeAmount}("");
+        IWETH(WETH).deposit{value: amountIn}();
+        assert(IWETH(WETH).transfer(SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn));
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
@@ -426,13 +395,9 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         ensure(deadline)
     {
         require(path[path.length - 1] == WETH, 'SquadswapRouter02: INVALID_PATH');
-        uint256 feeAmount = amountIn * swapFee / 10000;
 
         TransferHelper.safeTransferFrom(
-            path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn - feeAmount
-        );
-        TransferHelper.safeTransferFrom(
-            path[0], msg.sender, treasury, feeAmount
+            path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn
         );
         _swapSupportingFeeOnTransferTokens(path, address(this));
         uint amountOut = IERC20(WETH).balanceOf(address(this));
@@ -484,19 +449,5 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         returns (uint[] memory amounts)
     {
         return SquadswapLibrary.getAmountsIn(factory, amountOut, path);
-    }
-
-    function setSwapFee(uint256 _fee) onlyOwner external {
-        swapFee = _fee;
-    }
-
-    function setTreasury(address _wallet) onlyOwner external {
-        treasury = _wallet;
-    }
-
-    function transferToTreasury(uint256 _amount) private returns(uint256 swapAmount) {
-        uint256 treasuryAmount = _amount * swapFee;
-        swapAmount = _amount - treasuryAmount;
-
     }
 }

@@ -47,13 +47,13 @@ const config: HardhatUserConfig = {
       url: "https://bsc-testnet.publicnode.com",
       chainId: 97,
       // gasPrice: 225000000000,
-      accounts: [process.env.PRIVATEKEY]
+      accounts: [process.env.PRIVATEKEY as string]
     },
     mainnet: {
       url: "https://api.avax.network/ext/bc/C/rpc",
       chainId: 43114,
       gasPrice: 225000000000,
-      accounts: [process.env.PRIVATEKEY]
+      accounts: [process.env.PRIVATEKEY as string]
     }
   },
   solidity: {

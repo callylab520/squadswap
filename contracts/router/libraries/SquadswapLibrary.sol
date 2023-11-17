@@ -3,8 +3,6 @@ pragma solidity >=0.5.0;
 import '../../factory/interfaces/ISquadswapPair.sol';
 import "./SafeMath.sol";
 
-import "hardhat/console.sol";
-
 library SquadswapLibrary {
     using SafeMath for uint;
 
@@ -22,7 +20,7 @@ library SquadswapLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'e8ea2533513cb9531aecc99e37f6abf808c5015976d8513855b73bafa0914022' // init code hash
+                hex'7a65c3311944352ac77ea20cb6a47af2d3b49b513d5aca225f774997e44b8b0c' // init code hash
             ))));
     }
 
@@ -44,7 +42,7 @@ library SquadswapLibrary {
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
         require(amountIn > 0, 'SquadswapLibrary: INSUFFICIENT_INPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'SquadswapLibrary: INSUFFICIENT_LIQUIDITY');
-        uint amountInWithFee = amountIn.mul(9995);
+        uint amountInWithFee = amountIn.mul(9975);
         uint numerator = amountInWithFee.mul(reserveOut);
         uint denominator = reserveIn.mul(10000).add(amountInWithFee);
         amountOut = numerator / denominator;
@@ -55,7 +53,7 @@ library SquadswapLibrary {
         require(amountOut > 0, 'SquadswapLibrary: INSUFFICIENT_OUTPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'SquadswapLibrary: INSUFFICIENT_LIQUIDITY');
         uint numerator = reserveIn.mul(amountOut).mul(10000);
-        uint denominator = reserveOut.sub(amountOut).mul(9995);
+        uint denominator = reserveOut.sub(amountOut).mul(9975);
         amountIn = (numerator / denominator).add(1);
     }
 
