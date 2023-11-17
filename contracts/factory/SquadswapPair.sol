@@ -85,7 +85,7 @@ contract SquadswapPair is ISquadswapPair, SquadswapERC20 {
         emit Sync(reserve0, reserve1);
     }
 
-    // if fee is on, mint liquidity equivalent to 2/5th of the growth in sqrt(k) so that protocal fee is 0.25% * 2 / 5 = 0.10%
+    // if fee is on, mint liquidity equivalent to 2/5th of the growth in sqrt(k) so that protocal fee is 0.25% * 4 / 5 = 0.10%
     function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
         address feeTo = ISquadswapFactory(factory).feeTo();
         feeOn = feeTo != address(0);
@@ -97,8 +97,10 @@ contract SquadswapPair is ISquadswapPair, SquadswapERC20 {
                 if (rootK > rootKLast) {
                     uint numerator = totalSupply.mul(rootK.sub(rootKLast));
                     uint denominator = rootK.mul(3).add(rootKLast);
-                    uint liquidity = numerator / denominator * 6 * 2 / 5;
-                    if (liquidity > 0) _mint(feeTo, liquidity);
+                    uint liquidity = numerator / denominator * 6 * 4 / 5;
+                    if (liquidity > 0) {
+                        _mint(feeTo, liquidity);
+                    }
                 }
             }
         } else if (_kLast != 0) {

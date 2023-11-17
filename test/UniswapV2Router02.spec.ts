@@ -23,7 +23,7 @@ describe('UniswapV2Router02', () => {
     mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
     gasLimit: 9999999
   })
-  const [wallet] = provider.getWallets()
+  const [wallet, user1, feeManager, user2] = provider.getWallets()
   const loadFixture = createFixtureLoader(provider, [wallet])
 
   let token0: Contract
