@@ -3,6 +3,8 @@ pragma solidity >=0.5.0;
 import '../../factory/interfaces/ISquadswapPair.sol';
 import "./SafeMath.sol";
 
+import 'hardhat/console.sol';
+
 library SquadswapLibrary {
     using SafeMath for uint;
 
@@ -20,7 +22,7 @@ library SquadswapLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'7a65c3311944352ac77ea20cb6a47af2d3b49b513d5aca225f774997e44b8b0c' // init code hash
+                hex'cb0b43e6d2254067546bd939a2575164b5a9851e33c676801cf7ab86499ba864' // init code hash
             ))));
     }
 

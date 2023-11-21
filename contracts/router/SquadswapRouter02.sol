@@ -10,7 +10,7 @@ import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 import '../libs/access/Ownable.sol';
 
-import "hardhat/console.sol";
+import 'hardhat/console.sol';
 
 contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     using SafeMath for uint;
@@ -73,8 +73,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     ) external virtual override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
-        console.log("----------pair-----");
-        console.log(pair);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = ISquadswapPair(pair).mint(to);
@@ -115,7 +113,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountA, uint amountB) {
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
-        console.log(ISquadswapPair(pair).balanceOf(msg.sender));
         ISquadswapPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint amount0, uint amount1) = ISquadswapPair(pair).burn(to);
         (address token0,) = SquadswapLibrary.sortTokens(tokenA, tokenB);
@@ -268,6 +265,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         require(amounts[amounts.length - 1] >= amountOutMin, 'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
+        
         _swap(amounts, path, to);
     }
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
@@ -314,6 +312,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     {
         require(path[0] == WETH, 'SquadswapRouter02: INVALID_PATH');
         amounts = SquadswapLibrary.getAmountsIn(factory, amountOut, path);
+        
         require(amounts[0] <= msg.value, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(SquadswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));

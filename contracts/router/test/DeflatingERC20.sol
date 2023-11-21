@@ -83,6 +83,7 @@ contract DeflatingERC20 {
 
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
         require(deadline >= block.timestamp, 'EXPIRED');
+
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',

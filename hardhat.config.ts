@@ -1,6 +1,7 @@
 import "@nomiclabs/hardhat-waffle"
 import '@nomiclabs/hardhat-ethers'
 import "@nomiclabs/hardhat-etherscan"
+import "solidity-coverage";
 import { task } from 'hardhat/config'
 import { HardhatUserConfig } from 'hardhat/types'
 
