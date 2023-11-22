@@ -20,7 +20,7 @@ library SquadswapLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'a1a6fa7c5cf9d9bda604ced5cbee4c28e37e40469009ce2ec33e9b81b5ecce62' // init code hash
+                hex'299df76530f6ac30c40d7de2d5958d8e76013c0f02f4fec943d2ce03b52d32fd' // init code hash
             ))));
     }
 

@@ -1,5 +1,5 @@
 pragma solidity >=0.5.0;
 
 interface ISquadswapCallee {
-    function wardenswapCall(address sender, uint amount0, uint amount1, bytes calldata data) external;
+    function squadswapCall(address sender, uint amount0, uint amount1, bytes calldata data) external;
 }

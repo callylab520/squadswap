@@ -66,12 +66,6 @@ describe("Squad Token", function () {
     DexFactoryFactory = await ethers.getContractFactory("SquadswapFactory");
     DexFactory = await DexFactoryFactory.deploy(wallet.address);
 
-    console.log("Fatory address---------", DexFactory.address);
-    console.log(
-      "init code address---------",
-      await DexFactory.INIT_CODE_PAIR_HASH()
-    );
-
     RouterFactory = await ethers.getContractFactory("SquadswapRouter02");
     Router = await RouterFactory.deploy(DexFactory.address, WBNB.address);
 
@@ -123,6 +117,7 @@ describe("Squad Token", function () {
   // Test case
 
   it("Add Liquidity", async function () {
+    await DexFactory.setFeeTo(feeTo.address);
     await Router.connect(user1).addLiquidity(
       SquadContract.address,
       CakeContract.address,
@@ -133,6 +128,7 @@ describe("Squad Token", function () {
       user1.address,
       "9999999999"
     );
+    await DexFactory.setFeeTo(constants.AddressZero);
 
     await Router.connect(user1).addLiquidity(
       SquadContract.address,
@@ -229,7 +225,8 @@ describe("Squad Token", function () {
     await expect(Pair.swap('999999999999999999999999999900','999999999999999999999999999900',user1.address,'0x00')).to.revertedWith('Squadswap: INSUFFICIENT_LIQUIDITY')
     await expect(Pair.swap('100000000000','100000000000',SquadContract.address,'0x00')).to.revertedWith('Squadswap: INVALID_TO')
     
-    
+    await expect(Pair.mint(user2.address)).to.revertedWith('Squadswap: INSUFFICIENT_LIQUIDITY_MINTED')
+    await expect(Pair.burn(user2.address)).to.revertedWith('Squadswap: INSUFFICIENT_LIQUIDITY_BURNED')
     await Router.connect(user1).removeLiquidityETH(
       SquadContract.address,
       balance.sub("1000"),
