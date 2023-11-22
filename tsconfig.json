@@ -1,8 +1,12 @@
 {
     "compilerOptions": {
-      "module": "NodeNext",
       "moduleResolution": "NodeNext",
+      "target": "es2018",
+      "module": "NodeNext",
       "resolveJsonModule": true,
       "esModuleInterop": true,
-    }
+      
+    },
+    "include": ["./test", "./scripts"],
+    "files": ["./hardhat.config.ts"]
   }
