@@ -10,8 +10,6 @@ import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 import '../libs/access/Ownable.sol';
 
-import 'hardhat/console.sol';
-
 contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     using SafeMath for uint;
 
