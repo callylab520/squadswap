@@ -1,20 +1,19 @@
-pragma solidity =0.6.6;
+pragma solidity ^0.8.0;
 
 import '../factory/interfaces/ISquadswapFactory.sol';
 import '../libs/utils/TransferHelper.sol';
 
-import './interfaces/ISquadswapRouter02.sol';
 import './libraries/SquadswapLibrary.sol';
 import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 import '../libs/access/Ownable.sol';
 
-contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
+contract SquadswapRouter02 is Ownable {
     using SafeMath for uint;
 
-    address public immutable override factory;
-    address public immutable override WETH;
+    address public immutable factory;
+    address public immutable WETH;
 
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, 'SquadswapRouter02: EXPIRED');
@@ -68,7 +67,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint amountBMin,
         address to,
         uint deadline
-    ) external virtual override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
+    ) external virtual ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
@@ -82,7 +81,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint amountETHMin,
         address to,
         uint deadline
-    ) external virtual override payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
+    ) external virtual payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
         (amountToken, amountETH) = _addLiquidity(
             token,
             WETH,
@@ -109,7 +108,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint amountBMin,
         address to,
         uint deadline
-    ) public virtual override ensure(deadline) returns (uint amountA, uint amountB) {
+    ) public virtual ensure(deadline) returns (uint amountA, uint amountB) {
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
         ISquadswapPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint amount0, uint amount1) = ISquadswapPair(pair).burn(to);
@@ -125,7 +124,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint amountETHMin,
         address to,
         uint deadline
-    ) public virtual override ensure(deadline) returns (uint amountToken, uint amountETH) {
+    ) public virtual ensure(deadline) returns (uint amountToken, uint amountETH) {
         (amountToken, amountETH) = removeLiquidity(
             token,
             WETH,
@@ -148,9 +147,9 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountA, uint amountB) {
+    ) external virtual returns (uint amountA, uint amountB) {
         address pair = SquadswapLibrary.pairFor(factory, tokenA, tokenB);
-        uint value = approveMax ? uint(-1) : liquidity;
+        uint value = approveMax ? type(uint).max : liquidity;
         ISquadswapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountA, amountB) = removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline);
     }
@@ -162,9 +161,9 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountToken, uint amountETH) {
+    ) external virtual returns (uint amountToken, uint amountETH) {
         address pair = SquadswapLibrary.pairFor(factory, token, WETH);
-        uint value = approveMax ? uint(-1) : liquidity;
+        uint value = approveMax ? type(uint).max : liquidity;
         ISquadswapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountToken, amountETH) = removeLiquidityETH(token, liquidity, amountTokenMin, amountETHMin, to, deadline);
     }
@@ -177,7 +176,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint amountETHMin,
         address to,
         uint deadline
-    ) public virtual override ensure(deadline) returns (uint amountETH) {
+    ) public virtual ensure(deadline) returns (uint amountETH) {
         (, amountETH) = removeLiquidity(
             token,
             WETH,
@@ -199,9 +198,9 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountETH) {
+    ) external virtual returns (uint amountETH) {
         address pair = SquadswapLibrary.pairFor(factory, token, WETH);
-        uint value = approveMax ? uint(-1) : liquidity;
+        uint value = approveMax ? type(uint).max : liquidity;
         ISquadswapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         amountETH = removeLiquidityETHSupportingFeeOnTransferTokens(
             token, liquidity, amountTokenMin, amountETHMin, to, deadline
@@ -228,7 +227,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address[] calldata path,
         address to,
         uint deadline
-    ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
+    ) external virtual ensure(deadline) returns (uint[] memory amounts) {
         amounts = SquadswapLibrary.getAmountsOut(factory, amountIn, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
@@ -242,7 +241,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address[] calldata path,
         address to,
         uint deadline
-    ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
+    ) external virtual ensure(deadline) returns (uint[] memory amounts) {
         amounts = SquadswapLibrary.getAmountsIn(factory, amountOut, path);
         require(amounts[0] <= amountInMax, 'SquadswapRouter02: EXCESSIVE_INPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
@@ -253,7 +252,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         virtual
-        override
         payable
         ensure(deadline)
         returns (uint[] memory amounts)
@@ -269,7 +267,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
         external
         virtual
-        override
         ensure(deadline)
         returns (uint[] memory amounts)
     {
@@ -286,7 +283,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         virtual
-        override
         ensure(deadline)
         returns (uint[] memory amounts)
     {
@@ -303,7 +299,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
         external
         virtual
-        override
         payable
         ensure(deadline)
         returns (uint[] memory amounts)
@@ -331,7 +326,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
             { // scope to avoid stack too deep errors
             (uint reserve0, uint reserve1,) = pair.getReserves();
             (uint reserveInput, uint reserveOutput) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-            amountInput = IERC20(input).balanceOf(address(pair)).sub(reserveInput);
+            amountInput = IERC20(input).balanceOf(address(pair)) - reserveInput;
             amountOutput = SquadswapLibrary.getAmountOut(amountInput, reserveInput, reserveOutput);
             }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOutput) : (amountOutput, uint(0));
@@ -345,14 +340,14 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         address[] calldata path,
         address to,
         uint deadline
-    ) external virtual override ensure(deadline) {
+    ) external virtual ensure(deadline) {
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, SquadswapLibrary.pairFor(factory, path[0], path[1]), amountIn
         );
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
-            IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
+            IERC20(path[path.length - 1]).balanceOf(to) - balanceBefore >= amountOutMin,
             'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT'
         );
     }
@@ -364,7 +359,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     )
         external
         virtual
-        override
         payable
         ensure(deadline)
     {
@@ -375,7 +369,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
-            IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
+            IERC20(path[path.length - 1]).balanceOf(to) - balanceBefore >= amountOutMin,
             'SquadswapRouter02: INSUFFICIENT_OUTPUT_AMOUNT'
         );
     }
@@ -388,7 +382,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     )
         external
         virtual
-        override
         ensure(deadline)
     {
         require(path[path.length - 1] == WETH, 'SquadswapRouter02: INVALID_PATH');
@@ -404,7 +397,7 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
     }
 
     // **** LIBRARY FUNCTIONS ****
-    function quote(uint amountA, uint reserveA, uint reserveB) public pure virtual override returns (uint amountB) {
+    function quote(uint amountA, uint reserveA, uint reserveB) public pure virtual returns (uint amountB) {
         return SquadswapLibrary.quote(amountA, reserveA, reserveB);
     }
 
@@ -412,7 +405,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         public
         pure
         virtual
-        override
         returns (uint amountOut)
     {
         return SquadswapLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
@@ -422,7 +414,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         public
         pure
         virtual
-        override
         returns (uint amountIn)
     {
         return SquadswapLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
@@ -432,7 +423,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         public
         view
         virtual
-        override
         returns (uint[] memory amounts)
     {
         return SquadswapLibrary.getAmountsOut(factory, amountIn, path);
@@ -442,7 +432,6 @@ contract SquadswapRouter02 is ISquadswapRouter02, Ownable {
         public
         view
         virtual
-        override
         returns (uint[] memory amounts)
     {
         return SquadswapLibrary.getAmountsIn(factory, amountOut, path);

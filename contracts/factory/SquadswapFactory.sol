@@ -1,9 +1,9 @@
-pragma solidity =0.5.16;
+pragma solidity ^0.8.0;
 
-import './interfaces/ISquadswapFactory.sol';
 import './SquadswapPair.sol';
+import './interfaces/ISquadswapPair.sol';
 
-contract SquadswapFactory is ISquadswapFactory {
+contract SquadswapFactory {
     bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(SquadswapPair).creationCode));
 
     address public feeTo;

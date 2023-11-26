@@ -1,4 +1,4 @@
-pragma solidity >=0.6.2;
+pragma solidity ^0.8.0;
 
 interface ISquadswapRouter01 {
     function factory() external pure returns (address);
