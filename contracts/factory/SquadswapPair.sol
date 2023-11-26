@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import './SquadswapERC20.sol';
@@ -8,7 +9,6 @@ import './interfaces/ISquadswapFactory.sol';
 import './interfaces/ISquadswapCallee.sol';
 
 contract SquadswapPair is SquadswapERC20 {
-    using SafeMath  for uint;
     using UQ112x112 for uint224;
 
     uint public constant MINIMUM_LIQUIDITY = 10**3;

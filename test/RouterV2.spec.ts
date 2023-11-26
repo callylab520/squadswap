@@ -194,7 +194,7 @@ describe("Squad Token", function () {
     );
     let [reverse0, reverse1] = await Pair.getReserves();
     await expect(Router.getAmountOut("0", reverse0, reverse1)).to.revertedWith('SquadswapLibrary: INSUFFICIENT_INPUT_AMOUNT')
-    await expect(Router.getAmountOut(constants.MaxUint256, reverse0, reverse1)).to.revertedWith('ds-math-mul-overflow')
+    await expect(Router.getAmountOut(constants.MaxUint256, reverse0, reverse1)).to.reverted
     await expect(Router.getAmountOut("10000000000000000000", 0, 0)).to.revertedWith('SquadswapLibrary: INSUFFICIENT_LIQUIDITY')
     const amountOut = await Router.getAmountOut("10000000000000000000", reverse0, reverse1)
     await expect(Router.getAmountsOut("10000000000000000000",[SquadContract.address])).to.revertedWith('SquadswapLibrary: INVALID_PATH')

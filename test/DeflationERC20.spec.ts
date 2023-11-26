@@ -47,7 +47,7 @@ describe("DeflationERC20", function () {
 
   it("transferFrom", async function () {
     await ContractInstance.connect(user1).transferFrom(wallet.address, user1.address, ethers.utils.parseEther('100'), {gasLimit: '100000'})
-    await expect(ContractInstance.transferFrom(wallet.address, user1.address, ethers.utils.parseEther('1000'), {gasLimit: '100000'})).to.revertedWith('ds-math-sub-underflow')
+    await expect(ContractInstance.transferFrom(wallet.address, user1.address, ethers.utils.parseEther('1000'), {gasLimit: '100000'})).to.reverted
     
   });
 

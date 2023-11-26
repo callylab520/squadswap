@@ -1,17 +1,16 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import '../factory/interfaces/ISquadswapFactory.sol';
 import '../libs/utils/TransferHelper.sol';
 
 import './libraries/SquadswapLibrary.sol';
-import './libraries/SafeMath.sol';
+// import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 import '../libs/access/Ownable.sol';
 
 contract SquadswapRouter02 is Ownable {
-    using SafeMath for uint;
-
     address public immutable factory;
     address public immutable WETH;
 
@@ -20,7 +19,7 @@ contract SquadswapRouter02 is Ownable {
         _;
     }
 
-    constructor(address _factory, address _WETH) public {
+    constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
     }
@@ -40,7 +39,7 @@ contract SquadswapRouter02 is Ownable {
     ) internal virtual returns (uint amountA, uint amountB) {
         // create the pair if it doesn't exist yet
         if (ISquadswapFactory(factory).getPair(tokenA, tokenB) == address(0)) {
-            address pair = ISquadswapFactory(factory).createPair(tokenA, tokenB);
+            ISquadswapFactory(factory).createPair(tokenA, tokenB);
         }
         (uint reserveA, uint reserveB) = SquadswapLibrary.getReserves(factory, tokenA, tokenB);
         if (reserveA == 0 && reserveB == 0) {

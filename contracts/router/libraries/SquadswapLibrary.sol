@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import '../../factory/interfaces/ISquadswapPair.sol';
-import "./SafeMath.sol";
 
 library SquadswapLibrary {
-    using SafeMath for uint;
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
@@ -20,7 +19,7 @@ library SquadswapLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'da5d209d5c8b99ae9f47ab4474f674da0f046ca0adfcf9ddfdbf42f1cc0c5167' // init code hash
+                hex'0439aca15c11105c629a75ed391608660ff5b8e0672eafffaa8dde119517db5c' // init code hash
             )))));
     }
 
