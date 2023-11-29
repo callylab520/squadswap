@@ -51,9 +51,8 @@ const config: HardhatUserConfig = {
       accounts: [process.env.PRIVATEKEY as string]
     },
     mainnet: {
-      url: "https://api.avax.network/ext/bc/C/rpc",
-      chainId: 43114,
-      gasPrice: 225000000000,
+      url: "https://bsc-dataseed.binance.org/",
+      chainId: 56,
       accounts: [process.env.PRIVATEKEY as string]
     }
   },
