@@ -69,7 +69,7 @@ contract BEP20 is Context, Ownable {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(string memory name, string memory symbol) public {
+    constructor(string memory name, string memory symbol) {
         _name = name;
         _symbol = symbol;
         _decimals = 18;
