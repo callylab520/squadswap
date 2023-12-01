@@ -27,7 +27,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, bre) => {
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
-    apiKey: process.env.SNOWTRACE_API_KEY
+    apiKey: process.env.BSC_API_KEY
   },
   networks: {
     localhost: {
